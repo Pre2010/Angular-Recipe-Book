@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { RecipeService } from '../recipes/recipe.service';
-import { Recipe } from '../recipes/recipe.model';
-import { map, tap, take, exhaustMap } from 'rxjs/operators';
-import { AuthService } from '../auth/auth/auth.service';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { RecipeService } from "../recipes/recipe.service";
+import { Recipe } from "../recipes/recipe.model";
+import { map, tap, take, exhaustMap } from "rxjs/operators";
+import { AuthService } from "../auth/auth/auth.service";
+import { environment } from "src/environments/environment";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class DataStorageService {
   constructor(
@@ -19,10 +20,7 @@ export class DataStorageService {
     const recipes = this.recipeService.getRecipes();
     // firebase url and need to add above recipes and the .json
     this.http
-      .put(
-        'https://angular-recipe-book-15276.firebaseio.com/recipes.json',
-        recipes
-      )
+      .put(environment.firebaseDbUrl + "/recipes.json", recipes)
       .subscribe((response) => {
         console.log(response);
       });
@@ -35,9 +33,9 @@ export class DataStorageService {
     // return this.authService.user.pipe(
     //   take(1),
     //   exhaustMap((user) => {
-        return this.http.get<Recipe[]>(
-          'https://angular-recipe-book-15276.firebaseio.com/recipes.json'
-        ).pipe(
+    return this.http
+      .get<Recipe[]>(environment.firebaseDbUrl + "/recipes.json")
+      .pipe(
         map((recipes) => {
           return recipes.map((recipe) => {
             // ... is a spread operator. if ingredients is null, then set it to an empty array

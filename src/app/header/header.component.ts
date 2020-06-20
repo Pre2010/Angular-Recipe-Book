@@ -9,12 +9,18 @@ import { Subscription } from 'rxjs';
 })
 
 export class HeaderComponent implements OnInit, OnDestroy {
+  // collapsed: boolean;
+
   constructor(private dataStorageService: DataStorageService,
               private authService: AuthService) {}
 
   isAuthenticated = false;
   private userSub: Subscription;
   // collapsed = true;
+
+  // get headerMenuDropDownCollapse() {
+  //   return this.collapsed = true;
+  // }
 
 
   // @Output() featureSelected = new EventEmitter<string>();

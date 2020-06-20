@@ -4,6 +4,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { throwError, BehaviorSubject } from 'rxjs';
 import { User } from './user.model';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 // defines how our Auth data will look like
 export interface AuthResponseData {
@@ -34,7 +35,7 @@ export class AuthService {
     // tslint:disable-next-line: max-line-length
     return this.http
       .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAzx7flGO6GsniERWu1N3_K87X7vCHLoNE',
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebaseAPIKey,
         {
           // from the Firebase docs. Firebase expects three properties: email, password, returnSecureToken
           email: email,
@@ -59,7 +60,7 @@ export class AuthService {
     // tslint:disable-next-line: max-line-length
     return this.http
       .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAzx7flGO6GsniERWu1N3_K87X7vCHLoNE',
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebaseAPIKey,
         {
           email: email,
           password: password,

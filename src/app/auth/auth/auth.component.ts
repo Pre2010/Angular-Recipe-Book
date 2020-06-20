@@ -1,24 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { AuthService, AuthResponseData } from './auth.service';
-import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  ComponentFactoryResolver,
+  ViewChild,
+  OnDestroy,
+} from "@angular/core";
+import { NgForm } from "@angular/forms";
+import { AuthService, AuthResponseData } from "./auth.service";
+import { Observable, Subscription } from "rxjs";
+import { Router } from "@angular/router";
+import { AlertComponent } from "src/app/shared/alert/alert.component";
+import { PlaceholderDirective } from "src/app/shared/placeholder.directive";
 
 @Component({
-  selector: 'app-auth',
-  templateUrl: './auth.component.html',
-  styleUrls: ['./auth.component.css']
+  selector: "app-auth",
+  templateUrl: "./auth.component.html",
+  styleUrls: ["./auth.component.css"],
 })
-export class AuthComponent implements OnInit {
+export class AuthComponent implements OnInit, OnDestroy {
   // decides if the user is in sign up or login mode
   isLoginMode = true;
   isLoading = false;
   error: string = null;
+  @ViewChild(PlaceholderDirective, { static: false })
+  alertHost: PlaceholderDirective;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  private closeSub: Subscription;
 
-  ngOnInit() {
-  }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private componentFactoryResolver: ComponentFactoryResolver
+  ) {}
+
+  ngOnInit() {}
 
   onSwitchMode() {
     // we just flip the values instead of setting it to true or false
@@ -43,18 +58,48 @@ export class AuthComponent implements OnInit {
     }
 
     authObs.subscribe(
-      resData => {
-          console.log(resData);
-          this.isLoading = false;
-          this.router.navigate(['../../recipes']);
-        }, errorMessage => {
-          console.log(errorMessage);
-          this.error = errorMessage;
-          this.isLoading = false;
-        }
-      );
+      (resData) => {
+        console.log(resData);
+        this.isLoading = false;
+        this.router.navigate(["../../recipes"]);
+      },
+      (errorMessage) => {
+        console.log(errorMessage);
+        this.error = errorMessage;
+        this.showErrorAlert(errorMessage);
+        this.isLoading = false;
+      }
+    );
 
     form.reset();
   }
 
+  onHandleError() {
+    this.error = null;
+  }
+
+  private showErrorAlert(message: string) {
+    const alertComponentFactory = this.componentFactoryResolver.resolveComponentFactory(
+      AlertComponent
+    );
+
+    const hostViewContainerRef = this.alertHost.viewContainerRef;
+    hostViewContainerRef.clear();
+
+    const componentRef = hostViewContainerRef.createComponent(
+      alertComponentFactory
+    );
+
+    componentRef.instance.message = message;
+    this.closeSub = componentRef.instance.close.subscribe(() => {
+      this.closeSub.unsubscribe();
+      hostViewContainerRef.clear();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.closeSub) {
+      this.closeSub.unsubscribe();
+    }
+  }
 }
